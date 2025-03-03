@@ -1,0 +1,30 @@
+name: CI Base
+
+on:
+  workflow_call:
+    inputs:
+      os:
+        required: true
+        type: string
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  test:
+    runs-on: ${{ inputs.os }}
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install the lastest cargo-maelstrom
+      uses: jaxxstorm/action-install-gh-release@master
+      with:
+        repo: maelstrom-software/maelstrom
+        asset-name: cargo-maelstrom
+
+    - name: Disable apparmor container restrictions for Maelstrom
+      run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+
+    - run: cargo maelstrom
+      working-directory: cargo-workspace
