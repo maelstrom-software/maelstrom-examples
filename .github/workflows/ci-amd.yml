@@ -1,0 +1,29 @@
+name: CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install the lastest cargo-maelstrom
+      uses: jaxxstorm/action-install-gh-release@master
+      with:
+        repo: maelstrom-software/maelstrom
+        asset-name: cargo-maelstrom
+
+    - name: Disable apparmor container restrictions for Maelstrom
+      run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+
+    - run: cargo maelstrom
+      working-directory: cargo-workspace
