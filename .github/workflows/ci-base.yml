@@ -45,8 +45,8 @@ jobs:
         echo "MAELSTROM_BROKER_PID=$PID" >> "$GITHUB_ENV"
         echo "MAELSTROM_BROKER_PORT=$PORT" >> "$GITHUB_ENV"
 
-    - run: cargo maelstrom
-      working-directory: cargo-workspace --broker=localhost:$MAELSTROM_BROKER_PORT
+    - run: cargo maelstrom --broker=localhost:$MAELSTROM_BROKER_PORT
+      working-directory: cargo-workspace
 
   maelstrom-worker:
     strategy:
