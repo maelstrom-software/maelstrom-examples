@@ -1,0 +1,15 @@
+# The package_1::tests::tempfile tests need a writable /tmp to use tempfile out
+# of the box. One way to provide that is to mount a tmpfs file system at /tmp.
+# We have to provide a /tmp/ stub directory to mount it on.
+[[directives]]
+filter = "package.eq(package-1) && name.matches(tempfile.*tmpfs)"
+layers = [ { stubs = ["/tmp/"] } ]
+mounts = [ { type = "tmp", mount_point = "/tmp" } ]
+
+# Another way to provide a writable /tmp is to make the whole file system
+# writable. This will push an overlay tmpfs on top of the root file system
+# before any other file systems are mounted. We still have to create /tmp.
+[[directives]]
+filter = "package.eq(package-1) && name.matches(tempfile.*writable_root)"
+layers = [ { stubs = ["/tmp/"] } ]
+enable_writable_file_system = true
