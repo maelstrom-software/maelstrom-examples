@@ -7,7 +7,8 @@ mod tests {
         assert_eq!(1 + 1, 2);
     }
 
-    /// This test requires a `/tmp` directory that is writable.
+    /// This test requires a `/tmp` directory that is writable. We use rstest to create two
+    /// separate tests. This allows us to configure them differently in `cargo-maelstrom.toml`.
     #[rstest]
     #[case::tmpfs(())]
     #[case::writable_root(())]
