@@ -11,6 +11,6 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-24.04, ubuntu-24.04-arm]
-    uses: ./github/workflows/ci-base.yml
+    uses: ./.github/workflows/ci-base.yml
     with:
       os: ${{ matrix.os }}
