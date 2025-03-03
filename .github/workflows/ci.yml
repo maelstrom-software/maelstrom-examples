@@ -21,7 +21,7 @@ jobs:
     - uses: actions/checkout@v4
 
     - name: Install the lastest cargo-maelstrom
-      uses: jaxxstorm/action-install-gh-release@v1.14.0
+      uses: jaxxstorm/action-install-gh-release@master
       with:
         repo: maelstrom-software/maelstrom
         asset-name: cargo-maelstrom
