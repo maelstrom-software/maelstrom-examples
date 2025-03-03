@@ -21,5 +21,7 @@ jobs:
       with:
         repo: maelstrom-software/maelstrom
         asset-name: cargo-maelstrom
+    - name: Disable apparmor container restrictions
+      run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
     - name: Run tests
       run: cd cargo-workspace && cargo maelstrom 
