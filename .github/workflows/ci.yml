@@ -19,12 +19,20 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+
     - name: Install the lastest cargo-maelstrom
       uses: jaxxstorm/action-install-gh-release@v1.14.0
       with:
         repo: maelstrom-software/maelstrom
         asset-name: cargo-maelstrom
-    - name: Disable apparmor container restrictions
+
+    - name: Disable apparmor container restrictions for Maelstrom
       run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
-    - name: Run tests
-      run: cd cargo-workspace && cargo maelstrom 
+
+    - uses: Swatinem/rust-cache@v2
+      with:
+        workspaces: |
+          cargo-workspace
+
+    - run: cargo maelstrom
+      working-directory: cargo-workspace
