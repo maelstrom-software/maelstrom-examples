@@ -29,10 +29,5 @@ jobs:
     - name: Disable apparmor container restrictions for Maelstrom
       run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
 
-    - uses: Swatinem/rust-cache@v2
-      with:
-        workspaces: |
-          cargo-workspace
-
     - run: cargo maelstrom
       working-directory: cargo-workspace
