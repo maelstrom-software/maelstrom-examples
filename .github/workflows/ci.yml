@@ -10,13 +10,16 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  build:
+  test:
 
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v4
-    - name: Build
-      run: cargo build --verbose
+    - name: Install the lastest cargo-maelstrom
+      uses: jaxxstorm/action-install-gh-release@v1.14.0
+      with:
+	repo: maelstrom-software/maelstrom
+	asset-name: cargo-maelstrom
     - name: Run tests
-      run: cargo test --verbose
+      run: cd cargo-workspace && cargo maelstrom 
