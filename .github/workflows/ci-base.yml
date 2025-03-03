@@ -17,14 +17,66 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Install the lastest cargo-maelstrom
+    - name: Install Lastest cargo-maelstrom
       uses: jaxxstorm/action-install-gh-release@master
       with:
         repo: maelstrom-software/maelstrom
         asset-name: cargo-maelstrom
 
+    - name: Install Lastest maelstrom-broker
+      uses: jaxxstorm/action-install-gh-release@master
+      with:
+        repo: maelstrom-software/maelstrom
+        asset-name: maelstrom-broker
+
     - name: Disable apparmor container restrictions for Maelstrom
       run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
 
+    - name: Start Maelstrom Broker
+      run: |
+        TEMPFILE=$(mktemp maelstrom-broker-stderr.XXXXXX)
+        maelstrom-broker $BROKER_ARGS 2> >(tee "$TEMPFILE" >&2) &
+        PID=$!
+        PORT=$( \
+          tail -f "$TEMPFILE" \
+          | awk '/\<addr: / { print $0; exit}' \
+          | sed -Ee 's/^.*\baddr: [^,]*:([0-9]+),.*$/\1/' \
+        )
+        echo "MAELSTROM_BROKER_PID=$PID" >> "$GITHUB_ENV"
+        echo "MAELSTROM_BROKER_PORT=$PORT" >> "$GITHUB_ENV"
+
     - run: cargo maelstrom
-      working-directory: cargo-workspace
+      working-directory: cargo-workspace --broker=localhost:$MAELSTROM_BROKER_PORT
+
+  maelstrom-worker:
+    strategy:
+      matrix:
+        worker-number: [1, 2, 3, 4]
+
+    name: Maelstrom Worker ${{ matrix.worker-number }}
+
+    runs-on: ${{ inputs.os }}
+
+    steps:
+    - name: Install the lastest cargo-maelstrom
+      uses: jaxxstorm/action-install-gh-release@master
+      with:
+        repo: maelstrom-software/maelstrom
+        asset-name: maelstrom-worker
+
+    - name: Disable apparmor container restrictions for Maelstrom
+      run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+
+    - name: Expose GitHub Action Runtime
+      uses: crazy-max/ghaction-github-runtime@v3
+
+    - name: Run Maelstrom Worker
+      run: >
+        maelstrom-worker
+        --broker=0.0.0.0:0
+        --artifact-transfer-strategy github
+        --broker-connection github
+        || true
+      env:
+        ACTIONS_RUNTIME_TOKEN: ${{ env.ACTIONS_RUNTIME_TOKEN }}
+        ACTIONS_RESULTS_URL: ${{ env.ACTIONS_RESULTS_URL }}
