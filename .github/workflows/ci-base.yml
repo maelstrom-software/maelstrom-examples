@@ -12,7 +12,8 @@ env:
 
 jobs:
   test:
-    runs-on: ${{ inputs.os }}
+#    runs-on: ${{ inputs.os }}
+    runs-on: ubuntu-24.04
 
     steps:
     - uses: actions/checkout@v4
@@ -54,8 +55,9 @@ jobs:
         worker-number: [1, 2, 3, 4]
 
     name: Maelstrom Worker ${{ matrix.worker-number }}
+    runs-on: ubuntu-24.04
 
-    runs-on: ${{ inputs.os }}
+#    runs-on: ${{ inputs.os }}
 
     steps:
     - name: Install the lastest cargo-maelstrom
