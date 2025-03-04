@@ -16,24 +16,19 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
-    - uses: actions/checkout@v4
+    - name: Check Out Repository
+      uses: actions/checkout@v4
 
-    - name: Install Lastest cargo-maelstrom
-      uses: jaxxstorm/action-install-gh-release@master
-      with:
-        repo: maelstrom-software/maelstrom
-        asset-name: cargo-maelstrom
+    - name: Expose GitHub Action Variables
+      uses: crazy-max/ghaction-github-runtime@v3
 
-    - name: Install Lastest maelstrom-broker
+    - name: Install Maelstrom Broker
       uses: jaxxstorm/action-install-gh-release@master
       with:
         repo: maelstrom-software/maelstrom
         asset-name: maelstrom-broker
 
-    - name: Expose GitHub Action Runtime
-      uses: crazy-max/ghaction-github-runtime@v3
-
-    - name: Disable apparmor container restrictions for Maelstrom
+    - name: Disable Apparmor Container Restrictions for Maelstrom
       run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
 
     - name: Start Maelstrom Broker
@@ -54,11 +49,18 @@ jobs:
         ACTIONS_RUNTIME_TOKEN: ${{ env.ACTIONS_RUNTIME_TOKEN }}
         ACTIONS_RESULTS_URL: ${{ env.ACTIONS_RESULTS_URL }}
 
-    - run: cargo maelstrom
+    - name: Install cargo-maelstrom
+      uses: jaxxstorm/action-install-gh-release@master
+      with:
+        repo: maelstrom-software/maelstrom
+        asset-name: cargo-maelstrom
+
+    - name: Run cargo-maelstrom
+      run: cargo maelstrom
       working-directory: cargo-workspace
 
-    - name: Kill maelstrom-broker
-      run: kill -15 $MAELSTROM_BROER_PID
+    - name: Kill Maelstrom Broker
+      run: kill -15 $MAELSTROM_BROKER_PID
 
   maelstrom-worker:
     strategy:
