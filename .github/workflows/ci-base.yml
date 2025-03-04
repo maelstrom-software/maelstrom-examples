@@ -62,8 +62,6 @@ jobs:
         echo "CARGO_MAELSTROM_ARTIFACT_TRANSFER_STRATEGY=github" >> "$GITHUB_ENV"
       env:
         MAELSTROM_BROKER_ARTIFACT_TRANSFER_STRATEGY: github
-        ACTIONS_RUNTIME_TOKEN: ${{ env.ACTIONS_RUNTIME_TOKEN }}
-        ACTIONS_RESULTS_URL: ${{ env.ACTIONS_RESULTS_URL }}
 
     # This installs the latest cargo-maelstrom image from GitHub.
     - name: Install cargo-maelstrom
@@ -113,8 +111,6 @@ jobs:
     - name: Run Maelstrom Worker
       run: maelstrom-worker || true
       env:
-        ACTIONS_RUNTIME_TOKEN: ${{ env.ACTIONS_RUNTIME_TOKEN }}
-        ACTIONS_RESULTS_URL: ${{ env.ACTIONS_RESULTS_URL }}
         MAELSTROM_WORKER_ARTIFACT_TRANSFER_STRATEGY: github
         MAELSTROM_WORKER_BROKER_CONNECTION: github
         MAELSTROM_WORKER_BROKER: 0.0.0.0:0
