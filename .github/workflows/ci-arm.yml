@@ -1,0 +1,13 @@
+name: CI for ARM
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  ci:
+    uses: ./.github/workflows/ci-base.yml
+    with:
+      os: ubuntu-24.04-arm

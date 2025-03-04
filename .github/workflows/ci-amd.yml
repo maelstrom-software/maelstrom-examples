@@ -1,4 +1,4 @@
-name: CI
+name: CI for AMD
 
 on:
   push:
@@ -7,10 +7,7 @@ on:
     branches: [ "main" ]
 
 jobs:
-  test:
-    strategy:
-      matrix:
-        os: [ubuntu-24.04, ubuntu-24.04-arm]
+  ci:
     uses: ./.github/workflows/ci-base.yml
     with:
-      os: ${{ matrix.os }}
+      os: ubuntu-24.04
