@@ -1,4 +1,6 @@
-# This is a reusable workflow for the Maelstrom examples repository.
+# This is a [reusable
+# workflow](https://docs.github.com/en/actions/sharing-automations/reusing-workflows)
+# for the Maelstrom examples repository.
 #
 # The way Maelstrom works it GitHub right now limits it to one cluster per
 # workflow. To run jobs on different OSes, we need to create separate workflow
