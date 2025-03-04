@@ -36,7 +36,7 @@ jobs:
     - name: Start Maelstrom Broker
       run: |
         TEMPFILE=$(mktemp maelstrom-broker-stderr.XXXXXX)
-        maelstrom-broker $BROKER_ARGS 2> >(tee "$TEMPFILE" >&2) &
+        maelstrom-broker --artifact-transfer-strategy github 2> >(tee "$TEMPFILE" >&2) &
         PID=$!
         PORT=$( \
           tail -f "$TEMPFILE" \
@@ -45,8 +45,10 @@ jobs:
         )
         echo "MAELSTROM_BROKER_PID=$PID" >> "$GITHUB_ENV"
         echo "MAELSTROM_BROKER_PORT=$PORT" >> "$GITHUB_ENV"
+        echo "CARGO_MAELSTROM_BROKER=localhost:$PORT" >> "$GITHUB_ENV"
+        echo "CARGO_MAELSTROM_ARTIFACT_TRANSFER_STRATEGY=github" >> "$GITHUB_ENV"
 
-    - run: cargo maelstrom --broker=localhost:$MAELSTROM_BROKER_PORT
+    - run: cargo maelstrom
       working-directory: cargo-workspace
 
   maelstrom-worker:
