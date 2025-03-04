@@ -12,8 +12,8 @@ env:
 
 jobs:
   test:
-#    runs-on: ${{ inputs.os }}
-    runs-on: ubuntu-24.04
+    name: Run Maelstrom Broker and Tests
+    runs-on: ${{ inputs.os }}
 
     steps:
     - name: Check Out Repository
@@ -68,9 +68,7 @@ jobs:
         worker-number: [1, 2, 3, 4]
 
     name: Maelstrom Worker ${{ matrix.worker-number }}
-    runs-on: ubuntu-24.04
-
-#    runs-on: ${{ inputs.os }}
+    runs-on: ${{ inputs.os }}
 
     steps:
     - name: Expose GitHub Action Variables
