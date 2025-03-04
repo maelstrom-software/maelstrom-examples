@@ -30,13 +30,16 @@ jobs:
         repo: maelstrom-software/maelstrom
         asset-name: maelstrom-broker
 
+    - name: Expose GitHub Action Runtime
+      uses: crazy-max/ghaction-github-runtime@v3
+
     - name: Disable apparmor container restrictions for Maelstrom
       run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
 
     - name: Start Maelstrom Broker
       run: |
         TEMPFILE=$(mktemp maelstrom-broker-stderr.XXXXXX)
-        maelstrom-broker --artifact-transfer-strategy github 2> >(tee "$TEMPFILE" >&2) &
+        maelstrom-broker 2> >(tee "$TEMPFILE" >&2) &
         PID=$!
         PORT=$( \
           tail -f "$TEMPFILE" \
@@ -48,6 +51,7 @@ jobs:
         echo "CARGO_MAELSTROM_BROKER=localhost:$PORT" >> "$GITHUB_ENV"
         echo "CARGO_MAELSTROM_ARTIFACT_TRANSFER_STRATEGY=github" >> "$GITHUB_ENV"
       env:
+        MAELSTROM_BROKER_ARTIFACT_TRANSFER_STRATEGY: github
         ACTIONS_RUNTIME_TOKEN: ${{ env.ACTIONS_RUNTIME_TOKEN }}
         ACTIONS_RESULTS_URL: ${{ env.ACTIONS_RESULTS_URL }}
 
