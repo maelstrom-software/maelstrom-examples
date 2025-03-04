@@ -72,26 +72,24 @@ jobs:
 
 #    runs-on: ${{ inputs.os }}
 
+    - name: Expose GitHub Action Variables
+      uses: crazy-max/ghaction-github-runtime@v3
+
     steps:
-    - name: Install the lastest cargo-maelstrom
+    - name: Install Maelstrom Worker
       uses: jaxxstorm/action-install-gh-release@master
       with:
         repo: maelstrom-software/maelstrom
         asset-name: maelstrom-worker
 
-    - name: Disable apparmor container restrictions for Maelstrom
+    - name: Disable Apparmor Container Restrictions for Maelstrom
       run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
 
-    - name: Expose GitHub Action Runtime
-      uses: crazy-max/ghaction-github-runtime@v3
-
     - name: Run Maelstrom Worker
-      run: >
-        maelstrom-worker
-        --broker=0.0.0.0:0
-        --artifact-transfer-strategy github
-        --broker-connection github
-        || true
+      run: maelstrom-worker || true
       env:
         ACTIONS_RUNTIME_TOKEN: ${{ env.ACTIONS_RUNTIME_TOKEN }}
         ACTIONS_RESULTS_URL: ${{ env.ACTIONS_RESULTS_URL }}
+        MAELSTROM_WORKER_ARTIFACT_TRANSFER_STRATEGY: github
+        MAELSTROM_WORKER_BROKER_CONNECTION: github
+        MAELSTROM_WORKER_BROKER: 0.0.0.0:0
