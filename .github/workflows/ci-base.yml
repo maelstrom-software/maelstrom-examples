@@ -72,10 +72,10 @@ jobs:
 
 #    runs-on: ${{ inputs.os }}
 
+    steps:
     - name: Expose GitHub Action Variables
       uses: crazy-max/ghaction-github-runtime@v3
 
-    steps:
     - name: Install Maelstrom Worker
       uses: jaxxstorm/action-install-gh-release@master
       with:
