@@ -47,7 +47,6 @@ jobs:
           | sed -Ee 's/^.*\baddr: [^,]*:([0-9]+),.*$/\1/' \
         )
         echo "MAELSTROM_BROKER_PID=$PID" >> "$GITHUB_ENV"
-        echo "MAELSTROM_BROKER_PORT=$PORT" >> "$GITHUB_ENV"
         echo "CARGO_MAELSTROM_BROKER=localhost:$PORT" >> "$GITHUB_ENV"
         echo "CARGO_MAELSTROM_ARTIFACT_TRANSFER_STRATEGY=github" >> "$GITHUB_ENV"
       env:
@@ -57,6 +56,9 @@ jobs:
 
     - run: cargo maelstrom
       working-directory: cargo-workspace
+
+    - name: Kill maelstrom-broker
+      run: kill -15 $MAELSTROM_BROER_PID
 
   maelstrom-worker:
     strategy:
