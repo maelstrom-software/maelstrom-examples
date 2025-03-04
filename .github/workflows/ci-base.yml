@@ -1,3 +1,10 @@
+# This is a reusable workflow for the Maelstrom examples repository.
+#
+# The way Maelstrom works it GitHub right now limits it to one cluster per
+# workflow. To run jobs on different OSes, we need to create separate workflow
+# instances. We do that by having separate workflows that just call this
+# workflow, with the OS passed in as a parameter.
+
 name: CI Base
 
 on:
@@ -11,6 +18,9 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
+  # This is the main job that builds all of the tests and acts as the
+  # coordinator for running them on the Maelstrom cluster. It runs the broker
+  # in the background while it calls the test runners.
   test:
     name: Run Maelstrom Broker and Tests
     runs-on: ${{ inputs.os }}
@@ -19,18 +29,24 @@ jobs:
     - name: Check Out Repository
       uses: actions/checkout@v4
 
+    # This is required to get some variables that Maelstrom needs to use the
+    # artifact store.
     - name: Expose GitHub Action Variables
       uses: crazy-max/ghaction-github-runtime@v3
 
+    # This installs the latest broker image from GitHub.
     - name: Install Maelstrom Broker
       uses: jaxxstorm/action-install-gh-release@master
       with:
         repo: maelstrom-software/maelstrom
         asset-name: maelstrom-broker
 
+    # This is necessary to run Maelstrom on recent versions of Ubuntu.
     - name: Disable Apparmor Container Restrictions for Maelstrom
       run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
 
+    # This starts the broker in the background, and captures the port it's
+    # listening on.
     - name: Start Maelstrom Broker
       run: |
         TEMPFILE=$(mktemp maelstrom-broker-stderr.XXXXXX)
@@ -49,19 +65,23 @@ jobs:
         ACTIONS_RUNTIME_TOKEN: ${{ env.ACTIONS_RUNTIME_TOKEN }}
         ACTIONS_RESULTS_URL: ${{ env.ACTIONS_RESULTS_URL }}
 
+    # This installs the latest cargo-maelstrom image from GitHub.
     - name: Install cargo-maelstrom
       uses: jaxxstorm/action-install-gh-release@master
       with:
         repo: maelstrom-software/maelstrom
         asset-name: cargo-maelstrom
 
+    # This builds and runs all of the Rust tests.
     - name: Run cargo-maelstrom
       run: cargo maelstrom
       working-directory: cargo-workspace
 
+    # This kills the broker, which tells all of the workers to terminate.
     - name: Kill Maelstrom Broker
       run: kill -15 $MAELSTROM_BROKER_PID
 
+  # This is the worker job. Tests will execute in on one of these workers.
   maelstrom-worker:
     strategy:
       matrix:
@@ -70,19 +90,26 @@ jobs:
     name: Maelstrom Worker ${{ matrix.worker-number }}
     runs-on: ${{ inputs.os }}
 
+    # This is required to get some variables that Maelstrom needs to use the
+    # artifact store.
     steps:
     - name: Expose GitHub Action Variables
       uses: crazy-max/ghaction-github-runtime@v3
 
+    # This installs the latest worker image from GitHub.
     - name: Install Maelstrom Worker
       uses: jaxxstorm/action-install-gh-release@master
       with:
         repo: maelstrom-software/maelstrom
         asset-name: maelstrom-worker
 
+    # This is necessary to run Maelstrom on recent versions of Ubuntu.
     - name: Disable Apparmor Container Restrictions for Maelstrom
       run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
 
+    # This runs the worker. It will exit when the broker shuts down. Currently,
+    # that results in the worker exiting with a non-0 value, which indicates an
+    # error to GitHub. We just ignore that error for now.
     - name: Run Maelstrom Worker
       run: maelstrom-worker || true
       env:
