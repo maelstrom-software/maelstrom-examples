@@ -1,0 +1,11 @@
+[workspace]
+members = ["package-2"]
+
+[package]
+name = "root-package"
+version = "0.1.0"
+edition = "2021"
+
+[dev-dependencies]
+rstest = "0.25"
+tempfile = "3"

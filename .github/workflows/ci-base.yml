@@ -72,10 +72,20 @@ jobs:
         repo: maelstrom-software/maelstrom
         asset-name: cargo-maelstrom
 
-    # This builds and runs all of the Rust tests.
-    - name: Run cargo-maelstrom
+    # This builds and runs all of the Rust tests in the cargo-package project.
+    - name: Run cargo-maelstrom in cargo-package
+      run: cargo maelstrom
+      working-directory: cargo-package
+
+    # This builds and runs all of the Rust tests in the cargo-workspace project.
+    - name: Run cargo-maelstrom in cargo-workspace
       run: cargo maelstrom
       working-directory: cargo-workspace
+
+    # This builds and runs all of the Rust tests in the cargo-workspace project.
+    - name: Run cargo-maelstrom in cargo-workspace-with-root-package
+      run: cargo maelstrom
+      working-directory: cargo-workspace-with-root-package
 
     # This kills the broker, which tells all of the workers to terminate.
     - name: Kill Maelstrom Broker
