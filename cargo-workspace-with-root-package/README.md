@@ -1,5 +1,5 @@
-This project is an example of a cargo [workspace with a root package]
-(https://doc.rust-lang.org/cargo/reference/workspaces.html#root-package).
+This project is an example of a cargo [workspace with a root
+package](https://doc.rust-lang.org/cargo/reference/workspaces.html#root-package).
 
 Filter patterns can use the `package`
 [selector](https://maelstrom-software.com/doc/book/latest/cargo-maelstrom/filter.html#compound-selectors)

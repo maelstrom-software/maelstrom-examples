@@ -4,4 +4,5 @@ This repository is meant to illustrate different ways of using
 You can find an example of using Maelstrom in GitHub actions
 [here](.github/workflows/ci-base.yml).
 
-You can find some examples of using `cargo-maelstrom` [here](cargo-workspace/).
+You can find some examples of using `cargo-maelstrom` [here](cargo-package/),
+[here](cargo-workspace/), and [here](cargo-workspace-with-root-package/).
