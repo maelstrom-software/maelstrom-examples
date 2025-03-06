@@ -48,7 +48,8 @@ jobs:
       run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
 
     # This starts the broker in the background, and captures the port it's
-    # listening on.
+    # listening on. As a side-effect, it also creates a lof file for the
+    # broker's stderr.
     - name: Start Maelstrom Broker
       run: |
         TEMPFILE=$(mktemp maelstrom-broker-stderr.XXXXXX)
@@ -65,6 +66,8 @@ jobs:
       env:
         MAELSTROM_BROKER_ARTIFACT_TRANSFER_STRATEGY: github
 
+    # This sets up a post-job handler to kill the broker. Shutting the broker
+    # down cleanly will tell the workers to terminate.
     - name: Schedule Post Handler to Kill Maelstrom Broker
       uses: gacts/run-and-post-run@v1
       with:
