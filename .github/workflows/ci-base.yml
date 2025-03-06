@@ -50,26 +50,25 @@ jobs:
     # This starts the broker in the background, and captures the port it's
     # listening on.
     - name: Start Maelstrom Broker
-      uses: gacts/run-and-post-run@v1
-      with:
-        run: |
-          maelstrom-broker &
-          PID=$!
-          echo "MAELSTROM_BROKER_PID=$PID" >> "$GITHUB_ENV"
-          echo "CARGO_MAELSTROM_BROKER=localhost:$MAELSTROM_BROKER_PORT" >> "$GITHUB_ENV"
-          echo "CARGO_MAELSTROM_ARTIFACT_TRANSFER_STRATEGY=github" >> "$GITHUB_ENV"
-        post: kill -15 $MAELSTROM_BROKER_PID
+      run: |
+        TEMPFILE=$(mktemp maelstrom-broker-stderr.XXXXXX)
+        maelstrom-broker 2> >(tee "$TEMPFILE" >&2) &
+        PID=$!
+        PORT=$( \
+          tail -f "$TEMPFILE" \
+          | awk '/\<addr: / { print $0; exit}' \
+          | sed -Ee 's/^.*\baddr: [^,]*:([0-9]+),.*$/\1/' \
+        )
+        echo "MAELSTROM_BROKER_PID=$PID" >> "$GITHUB_ENV"
+        echo "CARGO_MAELSTROM_BROKER=localhost:$PORT" >> "$GITHUB_ENV"
+        echo "CARGO_MAELSTROM_ARTIFACT_TRANSFER_STRATEGY=github" >> "$GITHUB_ENV"
+      env:
+        MAELSTROM_BROKER_ARTIFACT_TRANSFER_STRATEGY: github
 
-        #- name: Start Maelstrom Broker
-        #  run: |
-        #    maelstrom-broker &
-        #    PID=$!
-        #    echo "MAELSTROM_BROKER_PID=$PID" >> "$GITHUB_ENV"
-        #    echo "CARGO_MAELSTROM_BROKER=localhost:$MAELSTROM_BROKER_PORT" >> "$GITHUB_ENV"
-        #    echo "CARGO_MAELSTROM_ARTIFACT_TRANSFER_STRATEGY=github" >> "$GITHUB_ENV"
-        #  env:
-        #    MAELSTROM_BROKER_ARTIFACT_TRANSFER_STRATEGY: github
-        #    MAELSTROM_BROKER_PORT: 18775
+    - name: Kill Maelstrom Broker
+        uses: gacts/run-and-post-run@v1
+        with:
+          post: kill -15 $MAELSTROM_BROKER_PID
 
     # This installs the latest cargo-maelstrom image from GitHub.
     - name: Install cargo-maelstrom
@@ -92,10 +91,6 @@ jobs:
     - name: Run cargo-maelstrom in cargo-workspace-with-root-package
       run: cargo maelstrom
       working-directory: cargo-workspace-with-root-package
-
-      #    # This kills the broker, which tells all of the workers to terminate.
-      #    - name: Kill Maelstrom Broker
-      #      run: kill -15 $MAELSTROM_BROKER_PID
 
   # This is the worker job. Tests will execute in on one of these workers.
   maelstrom-worker:
