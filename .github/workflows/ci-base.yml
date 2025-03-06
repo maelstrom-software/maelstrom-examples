@@ -66,9 +66,9 @@ jobs:
         MAELSTROM_BROKER_ARTIFACT_TRANSFER_STRATEGY: github
 
     - name: Kill Maelstrom Broker
-        uses: gacts/run-and-post-run@v1
-        with:
-          post: kill -15 $MAELSTROM_BROKER_PID
+      uses: gacts/run-and-post-run@v1
+      with:
+        post: kill -15 $MAELSTROM_BROKER_PID
 
     # This installs the latest cargo-maelstrom image from GitHub.
     - name: Install cargo-maelstrom
