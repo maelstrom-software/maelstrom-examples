@@ -50,15 +50,26 @@ jobs:
     # This starts the broker in the background, and captures the port it's
     # listening on.
     - name: Start Maelstrom Broker
-      run: |
-        maelstrom-broker &
-        PID=$!
-        echo "MAELSTROM_BROKER_PID=$PID" >> "$GITHUB_ENV"
-        echo "CARGO_MAELSTROM_BROKER=localhost:$MAELSTROM_BROKER_PORT" >> "$GITHUB_ENV"
-        echo "CARGO_MAELSTROM_ARTIFACT_TRANSFER_STRATEGY=github" >> "$GITHUB_ENV"
-      env:
-        MAELSTROM_BROKER_ARTIFACT_TRANSFER_STRATEGY: github
-        MAELSTROM_BROKER_PORT: 18775
+      uses: gacts/run-and-post-run@v1
+      with:
+        run: |
+          maelstrom-broker &
+          PID=$!
+          echo "MAELSTROM_BROKER_PID=$PID" >> "$GITHUB_ENV"
+          echo "CARGO_MAELSTROM_BROKER=localhost:$MAELSTROM_BROKER_PORT" >> "$GITHUB_ENV"
+          echo "CARGO_MAELSTROM_ARTIFACT_TRANSFER_STRATEGY=github" >> "$GITHUB_ENV"
+        post: kill -15 $MAELSTROM_BROKER_PID
+
+        #- name: Start Maelstrom Broker
+        #  run: |
+        #    maelstrom-broker &
+        #    PID=$!
+        #    echo "MAELSTROM_BROKER_PID=$PID" >> "$GITHUB_ENV"
+        #    echo "CARGO_MAELSTROM_BROKER=localhost:$MAELSTROM_BROKER_PORT" >> "$GITHUB_ENV"
+        #    echo "CARGO_MAELSTROM_ARTIFACT_TRANSFER_STRATEGY=github" >> "$GITHUB_ENV"
+        #  env:
+        #    MAELSTROM_BROKER_ARTIFACT_TRANSFER_STRATEGY: github
+        #    MAELSTROM_BROKER_PORT: 18775
 
     # This installs the latest cargo-maelstrom image from GitHub.
     - name: Install cargo-maelstrom
@@ -82,9 +93,9 @@ jobs:
       run: cargo maelstrom
       working-directory: cargo-workspace-with-root-package
 
-    # This kills the broker, which tells all of the workers to terminate.
-    - name: Kill Maelstrom Broker
-      run: kill -15 $MAELSTROM_BROKER_PID
+      #    # This kills the broker, which tells all of the workers to terminate.
+      #    - name: Kill Maelstrom Broker
+      #      run: kill -15 $MAELSTROM_BROKER_PID
 
   # This is the worker job. Tests will execute in on one of these workers.
   maelstrom-worker:
