@@ -95,7 +95,7 @@ jobs:
       run: cargo maelstrom
       working-directory: cargo-workspace-with-root-package
 
-  # This is the worker job. Tests will execute in on one of these workers.
+  # This is the worker job. Tests will execute on one of these workers.
   maelstrom-worker:
     strategy:
       matrix:
