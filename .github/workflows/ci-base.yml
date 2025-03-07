@@ -49,6 +49,7 @@ jobs:
           | sed -Ee 's/^.*\baddr: [^,]*:([0-9]+),.*$/\1/' \
         )
         echo "MAELSTROM_BROKER_PID=$PID" >> "$GITHUB_ENV"
+        echo "MAELSTROM_BROKER_PORT=$PORT" >> "$GITHUB_ENV"
       env:
         MAELSTROM_BROKER_ARTIFACT_TRANSFER_STRATEGY: github
 
@@ -73,7 +74,7 @@ jobs:
     # This sets some environment variables for cargo-maelstrom.
     - name: Prepare cargo-maelstrom
       run: |
-        echo "CARGO_MAELSTROM_BROKER=localhost:$MAELSTROM_BROKER_PID" >> "$GITHUB_ENV"
+        echo "CARGO_MAELSTROM_BROKER=localhost:$MAELSTROM_BROKER_PORT" >> "$GITHUB_ENV"
         echo "CARGO_MAELSTROM_ARTIFACT_TRANSFER_STRATEGY=github" >> "$GITHUB_ENV"
 
     # This builds and runs all of the Rust tests in the cargo-package project.
