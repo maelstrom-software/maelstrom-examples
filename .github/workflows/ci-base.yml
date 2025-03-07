@@ -33,7 +33,7 @@ jobs:
 
     # This installs the latest broker image and exposes some environment variables.
     - name: Install and Configure Maelstrom Broker
-      uses: maelstrom-software/maelstrom-broker-action@main
+      uses: maelstrom-software/maelstrom-broker-action@v1
 
     # This starts the broker in the background, and captures the port it's
     # listening on. As a side-effect, it also creates a lof file for the
