@@ -32,7 +32,7 @@ jobs:
       uses: actions/checkout@v4
 
     # This installs the latest broker image and exposes some environment variables.
-    - name: Install Maelstrom Broker
+    - name: Install and Configure Maelstrom Broker
       uses: maelstrom-software/maelstrom-broker-action@main
 
     # This starts the broker in the background, and captures the port it's
@@ -60,22 +60,9 @@ jobs:
       with:
         post: kill -15 $MAELSTROM_BROKER_PID
 
-    # This is necessary to run Maelstrom on recent versions of Ubuntu.
-    - name: Disable Apparmor Container Restrictions for Maelstrom
-      run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
-
-    # This installs the latest cargo-maelstrom image from GitHub.
-    - name: Install cargo-maelstrom
-      uses: jaxxstorm/action-install-gh-release@master
-      with:
-        repo: maelstrom-software/maelstrom
-        asset-name: cargo-maelstrom
-
-    # This sets some environment variables for cargo-maelstrom.
-    - name: Prepare cargo-maelstrom
-      run: |
-        echo "CARGO_MAELSTROM_BROKER=localhost:$MAELSTROM_BROKER_PORT" >> "$GITHUB_ENV"
-        echo "CARGO_MAELSTROM_ARTIFACT_TRANSFER_STRATEGY=github" >> "$GITHUB_ENV"
+    # This installs the latest broker image and exposes some environment variables.
+    - name: Install and Configure cargo-maelstrom
+      uses: maelstrom-software/cargo-maelstrom-action@main
 
     # This builds and runs all of the Rust tests in the cargo-package project.
     - name: Run cargo-maelstrom in cargo-package
