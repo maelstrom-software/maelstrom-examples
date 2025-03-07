@@ -60,7 +60,7 @@ jobs:
       with:
         post: kill -15 $MAELSTROM_BROKER_PID
 
-    # This installs the latest broker image and exposes some environment variables.
+    # This installs the latest cargo-maelstrom and exposes some environment variables.
     - name: Install and Configure cargo-maelstrom
       uses: maelstrom-software/cargo-maelstrom-action@main
 
@@ -78,6 +78,15 @@ jobs:
     - name: Run cargo-maelstrom in cargo-workspace-with-root-package
       run: cargo maelstrom
       working-directory: cargo-workspace-with-root-package
+
+    # This installs the latest maelstrom-go-test and exposes some environment variables.
+    - name: Install and Configure maelstrom-go-test
+      uses: maelstrom-software/maelstrom-go-test-action@main
+
+    # This builds and runs all of the Go tests in go project.
+    - name: Run maelstrom-go-test
+      run: maelstrom-go-test
+      working-directory: go
 
   # This is the worker job. Tests will execute on one of these workers.
   maelstrom-worker:
