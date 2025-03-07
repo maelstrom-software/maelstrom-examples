@@ -31,21 +31,9 @@ jobs:
     - name: Check Out Repository
       uses: actions/checkout@v4
 
-    # This is required to get some variables that Maelstrom needs to use the
-    # artifact store.
-    - name: Expose GitHub Action Variables
-      uses: crazy-max/ghaction-github-runtime@v3
-
-    # This installs the latest broker image from GitHub.
+    # This installs the latest broker image and exposes some environment variables.
     - name: Install Maelstrom Broker
-      uses: jaxxstorm/action-install-gh-release@master
-      with:
-        repo: maelstrom-software/maelstrom
-        asset-name: maelstrom-broker
-
-    # This is necessary to run Maelstrom on recent versions of Ubuntu.
-    - name: Disable Apparmor Container Restrictions for Maelstrom
-      run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+      uses: maelstrom-software/maelstrom-broker-action@head
 
     # This starts the broker in the background, and captures the port it's
     # listening on. As a side-effect, it also creates a lof file for the
@@ -61,8 +49,6 @@ jobs:
           | sed -Ee 's/^.*\baddr: [^,]*:([0-9]+),.*$/\1/' \
         )
         echo "MAELSTROM_BROKER_PID=$PID" >> "$GITHUB_ENV"
-        echo "CARGO_MAELSTROM_BROKER=localhost:$PORT" >> "$GITHUB_ENV"
-        echo "CARGO_MAELSTROM_ARTIFACT_TRANSFER_STRATEGY=github" >> "$GITHUB_ENV"
       env:
         MAELSTROM_BROKER_ARTIFACT_TRANSFER_STRATEGY: github
 
@@ -73,12 +59,22 @@ jobs:
       with:
         post: kill -15 $MAELSTROM_BROKER_PID
 
+    # This is necessary to run Maelstrom on recent versions of Ubuntu.
+    - name: Disable Apparmor Container Restrictions for Maelstrom
+      run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+
     # This installs the latest cargo-maelstrom image from GitHub.
     - name: Install cargo-maelstrom
       uses: jaxxstorm/action-install-gh-release@master
       with:
         repo: maelstrom-software/maelstrom
         asset-name: cargo-maelstrom
+
+    # This sets some environment variables for cargo-maelstrom.
+    - name: Prepare cargo-maelstrom
+      run: |
+        echo "CARGO_MAELSTROM_BROKER=localhost:$MAELSTROM_BROKER_PID" >> "$GITHUB_ENV"
+        echo "CARGO_MAELSTROM_ARTIFACT_TRANSFER_STRATEGY=github" >> "$GITHUB_ENV"
 
     # This builds and runs all of the Rust tests in the cargo-package project.
     - name: Run cargo-maelstrom in cargo-package
