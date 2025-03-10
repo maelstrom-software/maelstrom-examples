@@ -1,18 +1,9 @@
 #[cfg(test)]
 mod tests {
-    use rstest::rstest;
-
+    /// This test requires a `/tmp` directory that is writable. This is configured in
+    /// `cargo-maelstrom.toml`.
     #[test]
-    fn one_plus_one() {
-        assert_eq!(1 + 1, 2);
-    }
-
-    /// This test requires a `/tmp` directory that is writable. We use rstest to create two
-    /// separate tests. This allows us to configure them differently in `cargo-maelstrom.toml`.
-    #[rstest]
-    #[case::tmpfs(())]
-    #[case::writable_root(())]
-    fn tempfile(#[case] _ignore: ()) {
+    fn tempfile() {
         use ::tempfile::tempfile;
         use std::io::{Read as _, Seek as _, Write as _};
 

@@ -1,9 +1,11 @@
-# This example cargo-maelstrom.toml is meant to illustrate ways to get various
-# types of tests to run under Maelstrom.
+# This example cargo-maelstrom.toml is meant to illustrate the various filter
+# patterns for multiple packages in a workspace with a root package.
+#
+# See project at ../cargo-package for more Rust examples.
 #
 # It purposely starts from scratch, instead of from the configuration file you
 # would get from running `cargo maelstrom --init`. This is for illustrative
-# purposes only. You should probably start with the default config.
+# purposes only. You should start with the default config.
 
 # The package_1::tests::tempfile tests need a writable /tmp to use tempfile out
 # of the box. One way to provide that is to mount a tmpfs file system at /tmp.
@@ -11,15 +13,23 @@
 #
 # The default configuration for `cargo maelstrom` will include a tmpfs mount at
 # `/tmp`.
+#
+# Note that we use `root-package` in the filter pattern to refer to the root
+# package. This is the package name we provided in the root Cargo.toml.
 [[directives]]
-filter = "package.eq(root-package) && name.matches(tempfile.*tmpfs)"
+filter = "package.eq(root-package) && name.matches(tempfile)"
 layers = [ { stubs = ["/tmp/"] } ]
 mounts = [ { type = "tmp", mount_point = "/tmp" } ]
 
-# Another way to provide a writable /tmp is to make the whole file system
-# writable. This will push an overlay tmpfs on top of the root file system
-# before any other file systems are mounted. We still have to create /tmp.
+# This example shows executing a program in an image.
+#
+# We have to provide `/dev/null` for Rust's `Command::output`. We could mount
+# the actual null device, but the empty file we get from the stubs layer suffices.
+#
+# Note that we use `package-2` in the filter pattern to refer to the non-root
+# package.
 [[directives]]
-filter = "package.eq(root-package) && name.matches(tempfile.*writable_root)"
-layers = [ { stubs = ["/tmp/"] } ]
-enable_writable_file_system = true
+filter = "package.eq(package-2) && name.matches(subprocess)"
+image = "docker://alpine"
+include_shared_libraries = true
+added_layers = [ { stubs = [ "/dev/null" ] } ]
