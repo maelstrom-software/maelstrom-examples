@@ -77,3 +77,13 @@ layers = [
     # sure. This will include any shared libraries that `say-hello` requires.
     { shared_library_dependencies = ["<build-dir>/say-hello"] }
 ]
+
+# This is an example of using the goldenfile crate. The goldenfiles need to be
+# in the container. Additionally, the crate needs to be able to write to /tmp.
+[[directives]]
+filter = "name.matches(goldenfile)"
+layers = [
+    { stubs = ["/tmp/"] },
+    { glob = "tests/goldenfiles/**" },
+]
+mounts = [ { type = "tmp", mount_point = "/tmp" } ]
