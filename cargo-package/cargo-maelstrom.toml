@@ -23,3 +23,33 @@ mounts = [ { type = "tmp", mount_point = "/tmp" } ]
 filter = "name.matches(tempfile.*writable_root)"
 layers = [ { stubs = ["/tmp/"] } ]
 enable_writable_file_system = true
+
+# In this example, we're executing the `echo` program in the test.
+[[directives]]
+filter = "name.contains(subprocess::echo)"
+
+# We'll use the Alpine Linux container to provide `echo` since it's nice and small.
+image = "docker://alpine"
+
+# We need to have a `/dev/null` for `std::process::Command::output`. We use
+# `added_layers` here instead of `layers`. If we were to use `layers`, then we
+# would overwrite the layers we got from the image.
+added_layers = [ { stubs = ["/dev/null"] } ]
+
+# We don't technically need to do a bind mount of `/dev/null`, since having an
+# empty stub on a read-only file system gives us something very similar. We'll
+# do it for good measure.
+mounts = [ { type = "devices", devices = ["null"] } ]
+
+# Since the test's container will be based off of the image's file system, the
+# shared library depdencies for the test binary aren't included by default. The
+# reasoning is that the image might provide its own shared libraries and the
+# binaries packaged in the image will need those shared libraries. In that case
+# we don't want to just blindly overwrite some of them with libraries from the
+# client machine.
+#
+# However, in this case, Alpine Linux doesn't provide any shared libraries, so
+# we need to tell Maelstrom to include them after all so our test binary will
+# execute. Note, this has nothing to do with getting `echo` to run: it's just
+# something to be mindful of when we're working with images.
+include_shared_libraries = true
