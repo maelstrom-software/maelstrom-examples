@@ -53,3 +53,27 @@ mounts = [ { type = "devices", devices = ["null"] } ]
 # execute. Note, this has nothing to do with getting `echo` to run: it's just
 # something to be mindful of when we're working with images.
 include_shared_libraries = true
+
+# This example is like above, except we're executing the `say-hello` program in
+# an integration test. We can select the integration test with the `test`
+# compound selector.
+[[directives]]
+filter = "test.eq(integration_test)"
+
+layers = [
+    # We need to have a `/dev/null` for `std::process::Command::output`. We use
+    # `added_layers` here instead of `layers`. If we were to use `layers`, then
+    # we would overwrite the layers we got from the image.
+    { stubs = ["/dev/null"] },
+
+    # We need to have the binary to execute in the test. We use the <build-dir>
+    # template variable
+    # (https://maelstrom-software.com/doc/book/latest/cargo-maelstrom/spec/containers.html#path-templating)
+    # to reference the binary.
+    { paths = ["<build-dir>/say-hello"] },
+
+    # The test integration binary itself probably depends on the same shared
+    # libraries as `say-hello`, so we may not need this, but it's good to be
+    # sure. This will include any shared libraries that `say-hello` requires.
+    { shared_library_dependencies = ["<build-dir>/say-hello"] }
+]
