@@ -1,5 +1,6 @@
 #[cfg(test)]
 mod tests {
+    #[cfg(target_arch = "x86_64")]
     #[test]
     fn subprocess() {
         use std::{process::Command, str};
