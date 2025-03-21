@@ -99,7 +99,7 @@ jobs:
 
     steps:
     - name: Install and Configure maelstrom-go-test
-      uses: maelstrom-software/maelstrom-admin@main
+      uses: maelstrom-software/maelstrom-admin-action@main
 
     - name: Stop Maelstrom Cluster
       run: maelstrom-admin stop
