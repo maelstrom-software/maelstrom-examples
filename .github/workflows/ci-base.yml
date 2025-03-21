@@ -23,70 +23,95 @@ jobs:
   # This is the main job that builds all of the tests and acts as the
   # coordinator for running them on the Maelstrom cluster. It runs the broker
   # in the background while it calls the test runners.
-  test:
-    name: Run Maelstrom Broker and Tests
+  test-cargo-package:
+    name: Run Tests in cargo-package
     runs-on: ${{ inputs.os }}
 
     steps:
     - name: Check Out Repository
       uses: actions/checkout@v4
 
-    # This installs the latest broker image and exposes some environment variables.
-    - name: Install and Configure Maelstrom Broker
-      uses: maelstrom-software/maelstrom-broker-action@v1
-
-    # This starts the broker in the background, and captures the port it's
-    # listening on. As a side-effect, it also creates a lof file for the
-    # broker's stderr.
-    - name: Start Maelstrom Broker
-      run: |
-        TEMPFILE=$(mktemp maelstrom-broker-stderr.XXXXXX)
-        maelstrom-broker 2> >(tee "$TEMPFILE" >&2) &
-        PID=$!
-        PORT=$( \
-          tail -f "$TEMPFILE" \
-          | awk '/\<addr: / { print $0; exit}' \
-          | sed -Ee 's/^.*\baddr: [^,]*:([0-9]+),.*$/\1/' \
-        )
-        echo "MAELSTROM_BROKER_PID=$PID" >> "$GITHUB_ENV"
-        echo "MAELSTROM_BROKER_PORT=$PORT" >> "$GITHUB_ENV"
-      env:
-        MAELSTROM_BROKER_ARTIFACT_TRANSFER_STRATEGY: github
-
-    # This sets up a post-job handler to kill the broker. Shutting the broker
-    # down cleanly will tell the workers to terminate.
-    - name: Schedule Post Handler to Kill Maelstrom Broker
-      uses: gacts/run-and-post-run@v1
-      with:
-        post: kill -15 $MAELSTROM_BROKER_PID
-
     # This installs the latest cargo-maelstrom and exposes some environment variables.
     - name: Install and Configure cargo-maelstrom
-      uses: maelstrom-software/cargo-maelstrom-action@v1
+      uses: maelstrom-software/cargo-maelstrom-action@main
 
     # This builds and runs all of the Rust tests in the cargo-package project.
     - name: Run cargo-maelstrom in cargo-package
       run: cargo maelstrom
       working-directory: cargo-package
 
+  test-cargo-workspace:
+    name: Run Tests in cargo-workspace
+    runs-on: ${{ inputs.os }}
+
+    steps:
+    - name: Check Out Repository
+      uses: actions/checkout@v4
+
+    # This installs the latest cargo-maelstrom and exposes some environment variables.
+    - name: Install and Configure cargo-maelstrom
+      uses: maelstrom-software/cargo-maelstrom-action@main
+
     # This builds and runs all of the Rust tests in the cargo-workspace project.
     - name: Run cargo-maelstrom in cargo-workspace
       run: cargo maelstrom
       working-directory: cargo-workspace
+
+  test-cargo-workspace-with-root-package:
+    name: Run Tests in cargo-workspace-with-root-package
+    runs-on: ${{ inputs.os }}
+
+    steps:
+    - name: Check Out Repository
+      uses: actions/checkout@v4
+
+    # This installs the latest cargo-maelstrom and exposes some environment variables.
+    - name: Install and Configure cargo-maelstrom
+      uses: maelstrom-software/cargo-maelstrom-action@main
 
     # This builds and runs all of the Rust tests in the cargo-workspace project.
     - name: Run cargo-maelstrom in cargo-workspace-with-root-package
       run: cargo maelstrom
       working-directory: cargo-workspace-with-root-package
 
+  test-go:
+    name: Run Tests in cargo-workspace-with-root-package
+    runs-on: ${{ inputs.os }}
+
+    steps:
+    - name: Check Out Repository
+      uses: actions/checkout@v4
+
     # This installs the latest maelstrom-go-test and exposes some environment variables.
     - name: Install and Configure maelstrom-go-test
-      uses: maelstrom-software/maelstrom-go-test-action@v1
+      uses: maelstrom-software/maelstrom-go-test-action@main
 
     # This builds and runs all of the Go tests in go project.
     - name: Run maelstrom-go-test
       run: maelstrom-go-test
       working-directory: go
+
+  stop-maelstrom:
+    name: Stop Maelstrom Cluster
+    runs-on: ${{ inputs.os }}
+    if: ${{ always() }}
+    needs: [test-cargo-package, test-cargo-workspace, test-cargo-workspace-with-root-package, test-go]
+
+    steps:
+    - name: Install and Configure maelstrom-go-test
+      uses: maelstrom-software/maelstrom-admin@main
+
+    - name: Stop Maelstrom Cluster
+      run: maelstrom-admin stop
+
+  # This is the broker job. It runs in parallel to the worker jobs and the client jobs.
+  maelstrom-broker:
+    name: Maelstrom Broker
+    runs-on: ${{ inputs.os }}
+
+    steps:
+    - name: Install and Run Maelstrom Broker
+      uses: maelstrom-software/maelstrom-broker-action@main
 
   # These are the worker jobs. Tests will execute on one of these workers.
   maelstrom-worker:
