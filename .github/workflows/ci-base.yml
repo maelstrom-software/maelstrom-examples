@@ -23,7 +23,7 @@ jobs:
   # This is the main job that builds all of the tests and acts as the
   # coordinator for running them on the Maelstrom cluster. It runs the broker
   # in the background while it calls the test runners.
-  test-cargo-package:
+  test-cargo:
     name: Run Tests in cargo-package/
     runs-on: ${{ inputs.os }}
 
@@ -40,34 +40,10 @@ jobs:
       run: cargo maelstrom
       working-directory: cargo-package
 
-  test-cargo-workspace:
-    name: Run Tests in cargo-workspace/
-    runs-on: ${{ inputs.os }}
-
-    steps:
-    - name: Check Out Repository
-      uses: actions/checkout@v4
-
-    # This installs the latest cargo-maelstrom and exposes some environment variables.
-    - name: Install and Configure cargo-maelstrom
-      uses: maelstrom-software/cargo-maelstrom-action@main
-
     # This builds and runs all of the Rust tests in the cargo-workspace project.
     - name: Run cargo-maelstrom in cargo-workspace/
       run: cargo maelstrom
       working-directory: cargo-workspace
-
-  test-cargo-workspace-with-root-package:
-    name: Run Tests in cargo-workspace-with-root-package/
-    runs-on: ${{ inputs.os }}
-
-    steps:
-    - name: Check Out Repository
-      uses: actions/checkout@v4
-
-    # This installs the latest cargo-maelstrom and exposes some environment variables.
-    - name: Install and Configure cargo-maelstrom
-      uses: maelstrom-software/cargo-maelstrom-action@main
 
     # This builds and runs all of the Rust tests in the cargo-workspace project.
     - name: Run cargo-maelstrom in cargo-workspace-with-root-package/
@@ -95,7 +71,7 @@ jobs:
     name: Stop Maelstrom Cluster
     runs-on: ${{ inputs.os }}
     if: ${{ always() }}
-    needs: [test-cargo-package, test-cargo-workspace, test-cargo-workspace-with-root-package, test-go]
+    needs: [test-cargo, test-go]
 
     steps:
     - name: Install and Configure maelstrom-go-test
@@ -117,7 +93,7 @@ jobs:
   maelstrom-worker:
     strategy:
       matrix:
-        worker-number: [1, 2, 3]
+        worker-number: [1, 2, 3, 4]
 
     name: Maelstrom Worker ${{ matrix.worker-number }}
     runs-on: ${{ inputs.os }}
