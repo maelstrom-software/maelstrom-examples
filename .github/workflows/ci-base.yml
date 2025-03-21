@@ -100,4 +100,4 @@ jobs:
 
     steps:
     - name: Install and Run Maelstrom Worker
-      uses: maelstrom-software/maelstrom-worker-action@main
+      uses: maelstrom-software/maelstrom-worker-action@v1
