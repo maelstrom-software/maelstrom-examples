@@ -41,7 +41,7 @@ jobs:
       working-directory: cargo-package
 
   test-cargo-workspace:
-    name: Run Tests in cargo-workspace;
+    name: Run Tests in cargo-workspace/
     runs-on: ${{ inputs.os }}
 
     steps:
@@ -70,7 +70,7 @@ jobs:
       uses: maelstrom-software/cargo-maelstrom-action@main
 
     # This builds and runs all of the Rust tests in the cargo-workspace project.
-    - name: Run cargo-maelstrom in cargo-workspace-with-root-package;
+    - name: Run cargo-maelstrom in cargo-workspace-with-root-package/
       run: cargo maelstrom
       working-directory: cargo-workspace-with-root-package
 
