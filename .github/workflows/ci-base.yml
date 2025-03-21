@@ -117,7 +117,7 @@ jobs:
   maelstrom-worker:
     strategy:
       matrix:
-        worker-number: [1, 2, 3, 4]
+        worker-number: [1, 2, 3]
 
     name: Maelstrom Worker ${{ matrix.worker-number }}
     runs-on: ${{ inputs.os }}
