@@ -24,7 +24,7 @@ jobs:
   # coordinator for running them on the Maelstrom cluster. It runs the broker
   # in the background while it calls the test runners.
   test-cargo-package:
-    name: Run Tests in cargo-package
+    name: Run Tests in cargo-package/
     runs-on: ${{ inputs.os }}
 
     steps:
@@ -36,12 +36,12 @@ jobs:
       uses: maelstrom-software/cargo-maelstrom-action@main
 
     # This builds and runs all of the Rust tests in the cargo-package project.
-    - name: Run cargo-maelstrom in cargo-package
+    - name: Run cargo-maelstrom in cargo-package/
       run: cargo maelstrom
       working-directory: cargo-package
 
   test-cargo-workspace:
-    name: Run Tests in cargo-workspace
+    name: Run Tests in cargo-workspace;
     runs-on: ${{ inputs.os }}
 
     steps:
@@ -53,12 +53,12 @@ jobs:
       uses: maelstrom-software/cargo-maelstrom-action@main
 
     # This builds and runs all of the Rust tests in the cargo-workspace project.
-    - name: Run cargo-maelstrom in cargo-workspace
+    - name: Run cargo-maelstrom in cargo-workspace/
       run: cargo maelstrom
       working-directory: cargo-workspace
 
   test-cargo-workspace-with-root-package:
-    name: Run Tests in cargo-workspace-with-root-package
+    name: Run Tests in cargo-workspace-with-root-package/
     runs-on: ${{ inputs.os }}
 
     steps:
@@ -70,12 +70,12 @@ jobs:
       uses: maelstrom-software/cargo-maelstrom-action@main
 
     # This builds and runs all of the Rust tests in the cargo-workspace project.
-    - name: Run cargo-maelstrom in cargo-workspace-with-root-package
+    - name: Run cargo-maelstrom in cargo-workspace-with-root-package;
       run: cargo maelstrom
       working-directory: cargo-workspace-with-root-package
 
   test-go:
-    name: Run Tests in cargo-workspace-with-root-package
+    name: Run Tests in go/
     runs-on: ${{ inputs.os }}
 
     steps:
@@ -87,7 +87,7 @@ jobs:
       uses: maelstrom-software/maelstrom-go-test-action@main
 
     # This builds and runs all of the Go tests in go project.
-    - name: Run maelstrom-go-test
+    - name: Run maelstrom-go-test in go/
       run: maelstrom-go-test
       working-directory: go
 
