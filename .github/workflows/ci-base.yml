@@ -33,7 +33,7 @@ jobs:
 
     # This installs the latest cargo-maelstrom and exposes some environment variables.
     - name: Install and Configure cargo-maelstrom
-      uses: maelstrom-software/cargo-maelstrom-action@main
+      uses: maelstrom-software/cargo-maelstrom-action@v1
 
     # This builds and runs all of the Rust tests in the cargo-package project.
     - name: Run cargo-maelstrom in cargo-package/
