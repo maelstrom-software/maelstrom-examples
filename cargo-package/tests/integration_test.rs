@@ -7,7 +7,6 @@ use std::{env, process::Command, str};
 ///   - The program to be executed must exist in the container.
 ///   - If the program to be executed has shared library dependencies, then the dependencies must
 ///     also exist in the container.
-#[cfg(target_arch = "x86_64")]
 #[test]
 fn echo() {
     let output = Command::new(env!("CARGO_BIN_EXE_say-hello"))
